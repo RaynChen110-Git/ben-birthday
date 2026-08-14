@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <!-- viewport-fit=cover + maximum-scale keeps the layout stable on iPhone (incl. notch/Dynamic Island) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Happy 15th, Ben 🎉</title>
+
+  <style>
+    /* ============================================================
+       DESIGN TOKENS
+       ============================================================ */
+    :root {
+      --bg:        #0f172a; /* dark slate page background */
+      --card:      #1e293b; /* card surface */
+      --text:      #ffffff;
+      --muted:     #94a3b8; /* secondary copy */
+      --accent:    #3b82f6; /* blue */
+      --accent-dk: #2563eb; /* blue, pressed state */
+      --success:   #10b981; /* green */
+      --error:     #f87171; /* soft red, non-alarming */
+      --border:    #334155;
+    }
+
+    /* ============================================================
+       RESET / BASE
+       ============================================================ */
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      /* Native system font stack — no external fonts loaded. */
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                   Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -webkit-text-size-adjust: 100%; /* stop iOS from resizing text on rotate */
+    }
+
+    body {
+      min-height: 100vh;
+      min-height: 100dvh; /* respects the iOS Safari toolbars */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      /* safe-area padding so the card never sits under the notch/home bar */
+      padding: calc(24px + env(safe-area-inset-top)) 20px
+               calc(24px + env(safe-area-inset-bottom));
+    }
+
+    /* ============================================================
+       CARD
+       ============================================================ */
+    .card {
+      background: var(--card);
+      width: 100%;
+      max-width: 420px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 28px 24px 32px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+      text-align: center;
+    }
+
+    .emoji {
+      font-size: 44px;
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: 26px;
+      line-height: 1.25;
+      margin: 0 0 6px;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.5;
+      margin: 0 0 22px;
+    }
+
+    /* ============================================================
+       RIDDLE BLOCK
+       ============================================================ */
+    .riddle {
+      background: rgba(59, 130, 246, 0.08);
+      border: 1px solid rgba(59, 130, 246, 0.35);
+      border-radius: 12px;
+      padding: 16px 16px 18px;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .riddle-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    .riddle p {
+      margin: 0 0 8px;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #e2e8f0;
+    }
+
+    .riddle p:last-child { margin-bottom: 0; }
+
+    .riddle .question {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* ============================================================
+       FORM CONTROLS
+       ============================================================ */
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    input[type="text"] {
+      /* 16px exactly — anything smaller makes iOS Safari auto-zoom on focus. */
+      font-size: 16px;
+      font-family: inherit;
+      width: 100%;
+      padding: 14px 16px;
+      color: var(--text);
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      -webkit-appearance: none; /* strip iOS default inner shadow */
+      appearance: none;
+    }
+
+    input[type="text"]::placeholder { color: #64748b; }
+
+    input[type="text"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+    }
+
+    /* Red hint on the input while an answer is wrong. */
+    input[type="text"].is-invalid {
+      border-color: var(--error);
+      box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.18);
+    }
+
+    button {
+      font-size: 16px;
+      font-family: inherit;
+      font-weight: 600;
+      width: 100%;
+      padding: 14px 16px;
+      color: #fff;
+      background: var(--accent);
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.15s ease, transform 0.08s ease;
+    }
+
+    button:active {
+      background: var(--accent-dk);
+      transform: scale(0.985);
+    }
+
+    /* ============================================================
+       INLINE ERROR
+       ============================================================ */
+    .error {
+      color: var(--error);
+      font-size: 14px;
+      min-height: 20px;   /* reserve the row so nothing jumps when it appears */
+      margin: 12px 0 0;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+
+    .error.is-visible { opacity: 1; }
+
+    /* Small shake to make a wrong answer feel responsive but not punishing. */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25%      { transform: translateX(-5px); }
+      75%      { transform: translateX(5px); }
+    }
+
+    .shake { animation: shake 0.28s ease-in-out; }
+
+    /* Respect users who ask for reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      .shake { animation: none; }
+      * { transition: none !important; }
+    }
+
+    /* ============================================================
+       VIEW SWITCHING
+       The two views live in the DOM at all times; a single `.hidden`
+       class toggle swaps which one is shown.
+       ============================================================ */
+    .hidden { display: none; }
+
+    #success .emoji { font-size: 52px; }
+
+    #success h2 {
+      color: var(--success);
+      font-size: 24px;
+      margin: 0 0 10px;
+    }
+
+    #success p {
+      font-size: 16px;
+      line-height: 1.6;
+      color: #e2e8f0;
+      margin: 0 0 16px;
+    }
+
+    .claim {
+      display: block;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.45);
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--success);
+      margin: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="card">
+
+    <!-- ========== UI STATE 1: the puzzle ========== -->
+    <section id="puzzle">
+      <div class="emoji" aria-hidden="true">🎂</div>
+      <h1>Happy 15th Birthday, Ben!</h1>
+      <p class="subtitle">
+        One small problem: your gift is locked. Answer the riddle to unlock it.
+      </p>
+
+      <div class="riddle">
+        <span class="riddle-label">The Riddle</span>
+        <p>I'm a button on a PlayStation controller.</p>
+        <p>I'm the offense Phil Jackson ran to six rings in Chicago.</p>
+        <p>I'm the smallest thing in the percussion section — one ping and everyone hears me.</p>
+        <p class="question">What am I?</p>
+      </div>
+
+      <form id="answer-form" class="field" novalidate>
+        <label for="answer" class="hidden">Your answer</label>
+        <input
+          id="answer"
+          type="text"
+          placeholder="Type your answer..."
+          autocomplete="off"
+          autocapitalize="none"
+          autocorrect="off"
+          spellcheck="false"
+          enterkeyhint="go"
+          aria-describedby="error"
+        />
+        <button type="submit">Submit</button>
+      </form>
+
+      <!-- aria-live so VoiceOver announces the error without a page change -->
+      <p id="error" class="error" role="status" aria-live="polite"></p>
+    </section>
+
+    <!-- ========== UI STATE 2: the reward (hidden until solved) ========== -->
+    <section id="success" class="hidden">
+      <div class="emoji" aria-hidden="true">🎉</div>
+      <h2>Unlocked!</h2>
+      <p>
+        Nailed it, Ben. Court, controller, and concert band — you covered all three.
+        Fifteen looks good on you.
+      </p>
+      <p class="claim">Go claim your gift from Rayn!</p>
+    </section>
+
+  </main>
+
+  <script>
+    (function () {
+      'use strict';
+
+      /* ----------------------------------------------------------
+         Accepted answers. Everything here is already lowercase and
+         trimmed, so the comparison below is a straight lookup.
+         ---------------------------------------------------------- */
+      var ACCEPTED = [
+        'triangle',
+        'triangles',
+        'a triangle',
+        'the triangle',
+        'triangle offense',
+        'the triangle offense'
+      ];
+
+      var ERROR_TEXT = 'Access Denied. Try again.';
+
+      /* Cache the elements we touch. */
+      var form    = document.getElementById('answer-form');
+      var input   = document.getElementById('answer');
+      var error   = document.getElementById('error');
+      var puzzle  = document.getElementById('puzzle');
+      var success = document.getElementById('success');
+
+      /* Defensive: if any node is missing, do nothing rather than throw. */
+      if (!form || !input || !error || !puzzle || !success) { return; }
+
+      /**
+       * Normalize raw input for comparison: trim outer whitespace,
+       * lowercase it, collapse internal runs of spaces, and drop
+       * trailing punctuation like "triangle!" or "triangle?".
+       */
+      function normalize(value) {
+        return String(value)
+          .trim()
+          .toLowerCase()
+          .replace(/\s+/g, ' ')
+          .replace(/[.!?,]+$/, '');
+      }
+
+      /** True when the guess matches one of the accepted answers. */
+      function isCorrect(guess) {
+        return ACCEPTED.indexOf(normalize(guess)) !== -1;
+      }
+
+      /** Show the inline error and nudge the input. No reload, no reset. */
+      function showError() {
+        error.textContent = ERROR_TEXT;
+        error.classList.add('is-visible');
+        input.classList.add('is-invalid');
+
+        /* Restart the shake animation each time by removing and re-adding. */
+        input.classList.remove('shake');
+        void input.offsetWidth; // force reflow so the animation replays
+        input.classList.add('shake');
+
+        input.focus();
+        input.select();
+      }
+
+      /** Clear the error state (called as soon as he starts retyping). */
+      function clearError() {
+        error.textContent = '';
+        error.classList.remove('is-visible');
+        input.classList.remove('is-invalid', 'shake');
+      }
+
+      /** Swap UI State 1 for UI State 2 via a single class toggle. */
+      function unlock() {
+        clearError();
+        puzzle.classList.add('hidden');
+        success.classList.remove('hidden');
+        /* Dismiss the iOS keyboard so the reward is fully visible. */
+        input.blur();
+      }
+
+      /* Submit handler — covers both the button tap and the iOS "go" key. */
+      form.addEventListener('submit', function (event) {
+        event.preventDefault(); // never reload the page
+
+        if (isCorrect(input.value)) {
+          unlock();
+        } else {
+          showError();
+        }
+      });
+
+      /* Typing again wipes the error so it never feels sticky. */
+      input.addEventListener('input', function () {
+        if (error.classList.contains('is-visible')) { clearError(); }
+      });
+    })();
+  </script>
+</body>
+</html>
