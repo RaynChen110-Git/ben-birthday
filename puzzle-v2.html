@@ -330,15 +330,14 @@
       <div class="emoji" aria-hidden="true">🎂</div>
       <h1>Happy 15th Birthday, Ben!</h1>
       <p class="subtitle">
-        Your gift is behind three locks. Crack all three and it's yours.
+        Your gift is behind two locks. Crack both and it's yours.
       </p>
 
       <!-- Progress pips: blue for the current lock, green once solved -->
       <div class="progress" aria-hidden="true">
         <span class="pip is-active" id="pip-1"></span>
         <span class="pip" id="pip-2"></span>
-        <span class="pip" id="pip-3"></span>
-        <span class="progress-label" id="progress-label">Lock 1 of 3</span>
+        <span class="progress-label" id="progress-label">Lock 1 of 2</span>
       </div>
 
       <!-- All puzzle copy is injected here by the script (see PUZZLES below). -->
@@ -375,7 +374,7 @@
     <!-- ========== UI STATE 2: the reward (hidden until every lock opens) ========== -->
     <section id="success" class="hidden">
       <div class="emoji" aria-hidden="true">🎉</div>
-      <h2>All Three Locks Open!</h2>
+      <h2>Both Locks Open!</h2>
       <p>
         Nailed it, Ben. Court, controller, and concert band — you read all three.
         Fifteen looks good on you.
@@ -423,21 +422,6 @@
           accept: ['beat', 'beats', 'the beat', 'a beat'],
           hint: 'The numbers are <b>2, 5, 1, 20</b>. Now map them to letters ' +
                 'and read straight across.'
-        },
-        {
-          label: 'Lock 3',
-          intro: 'Last one. Lock 1 lived at the front of the words and Lock 2 ' +
-                 'lived in the numbers. This one lives in the cracks between ' +
-                 'the words.',
-          material: 'Down one at the half. If teenagers ever needed a drumline, ' +
-                    'it&rsquo;s now.',
-          mono: false,
-          outro: 'Seven letters, sitting right there. You just turned it.',
-          /* "...hal(FIFTEEN)agers..." — spaces and punctuation removed. */
-          accept: ['fifteen', '15', 'fifteen years', 'fifteen years old',
-                   '15 years', '15 years old'],
-          hint: 'Delete every space and every mark, then look at the middle ' +
-                'of the sentence: hal<b>fifteen</b>agers.'
         }
       ];
 
@@ -457,8 +441,7 @@
       var elMat    = document.getElementById('riddle-material');
       var elOutro  = document.getElementById('riddle-outro');
       var pips     = [document.getElementById('pip-1'),
-                      document.getElementById('pip-2'),
-                      document.getElementById('pip-3')];
+                      document.getElementById('pip-2')];
       var progressLabel = document.getElementById('progress-label');
 
       /* Defensive: if any node is missing, do nothing rather than throw. */
